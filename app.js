@@ -15,7 +15,15 @@ app.set('view engine', 'jade');
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get("/", function (req, res) {
-	res.render("index", {});
+	Tasks.findAll()
+		.then(function (tasks) {
+			res.render("index", {
+				tasks: JSON.stringify(tasks),
+				layout: false
+			});
+		}).error(function (err) {
+			res.json(err);
+		});
 });
 
 app.get("/api/tasks", function (req, res) {
@@ -78,7 +86,6 @@ app.delete("/api/tasks/:id", function (req, res) {
 		}
 	});
 });
-
 
 console.log("server running on port 3000...");
 app.listen(3000);
