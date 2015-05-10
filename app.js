@@ -7,10 +7,15 @@ var Tasks = require("./models/tasks.js");
 var app = module.exports = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get("/", function (req, res) {
-
+	res.render("index", {});
 });
 
 app.get("/api/tasks", function (req, res) {
@@ -61,9 +66,19 @@ app.put("/api/tasks/:id", function (req, res) {
 });
 
 app.delete("/api/tasks/:id", function (req, res) {
-	Tasks.findAndDelete(req.params.id, function (error, result) {
-		res.send();
+	Tasks.find({
+		where: {
+			id: req.params.id
+		}
+	}).then(function (task) {
+		if (task) {
+			task.destroy().then(function () {
+				res.send();
+			});
+		}
 	});
 });
 
+
+console.log("server running on port 3000...");
 app.listen(3000);
